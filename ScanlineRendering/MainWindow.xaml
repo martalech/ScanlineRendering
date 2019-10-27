@@ -5,8 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScanlineRendering"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Name="Main"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="Scanline Rendering" Height="600" Width="900" ResizeMode="NoResize">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="10, 10, 20, 10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="8*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="N: " VerticalAlignment="Center"/>
+            <TextBox Name="NSize" Grid.Column="1" VerticalAlignment="Center">
+                <Binding Path="Triangles.N" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                         NotifyOnValidationError="True">
+                    <Binding.ValidationRules>
+                        <local:TrianglesSizeValidator/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox>
+
+            <TextBlock Grid.Row="1" Text="M: " VerticalAlignment="Center"/>
+            <TextBox Name="MSize" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center">
+                <Binding Path="Triangles.M" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                         NotifyOnValidationError="True">
+                    <Binding.ValidationRules>
+                        <local:TrianglesSizeValidator/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox>
+        </Grid>
+        <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
+                Loaded="OnCanvasLoaded" Margin="10, 10, 10, 10" MouseMove="OnCanvasMouseMove"
+                MouseLeftButtonUp="OnCanvasMouseUp" Background="Transparent" MouseLeave="OnCanvasMouseLeave">
+        </Canvas>
     </Grid>
 </Window>
