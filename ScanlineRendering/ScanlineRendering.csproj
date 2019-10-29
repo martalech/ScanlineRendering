@@ -55,8 +55,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Edge.cs" />
+    <Compile Include="EdgeET.cs" />
+    <Compile Include="Triangle.cs" />
     <Compile Include="TrianglesInfo.cs" />
     <Compile Include="TrianglesSizeValidator.cs" />
+    <Compile Include="Vertex.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
