@@ -20,17 +20,23 @@ namespace ScanlineRendering
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        //private List<Vertex> vertices;
+        public enum RandomSliders { Random, Sliders }
+        public enum ConstantLoad { Constant, Load }
+        public enum ConstantMoving { Constant, Moving }
+
         private TrianglesInfo trianglesInfo;
         private Vertex movingPoint = null;
-        //private (int i, int j)? movingPoint = null;
-        //private Edge movingEdge = null;
 
         private List<EdgeET>[] ET = null;
         private List<EdgeET> AET = null;
         private List<Triangle> triangles = new List<Triangle>();
         private Vertex[,] vertices;
-        //private SortedList<int, (int ymax, double m)> AET = new SortedList<int, (int, double)>();
+
+        public RandomSliders KMMode { get; set; } = RandomSliders.Random;
+        public ConstantLoad NMode { get; set; } = ConstantLoad.Constant;
+        public ConstantLoad ColorMMode { get; set; } = ConstantLoad.Constant;
+        public ConstantLoad IoMode { get; set; } = ConstantLoad.Constant;
+        public ConstantMoving LMode { get; set; } = ConstantMoving.Constant;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public TrianglesInfo Triangles
@@ -47,6 +53,35 @@ namespace ScanlineRendering
                     RaisePropertyChanged();
                 }
             }
+        }
+
+        private double VectorLength((double x, double y, double z) v)
+        {
+            return Math.Sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        }
+
+        private double Angle((double x, double y, double z)v1, (double x, double y, double z)v2)
+        {
+            return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) / (VectorLength(v1) + VectorLength(v2));
+        }
+
+        private (double, double, double) I()
+        {
+            (double x, double y, double z) N, V, L, IO, IL, R;
+            double kd, ks, m;
+            V = L = (0, 0, 1);
+            IL = (1, 1, 1);
+            IO = (255, 0, 0);
+            N = (0, 0, 0);
+            R = (2 * N.x - L.x, 2 * N.y - L.y, 2 * N.z - L.z);
+            kd = 0.2;
+            ks = 0.3;
+            m = 4;
+            double angle1 = Math.Cos(Angle(N, L));
+            double angle2 = Math.Pow(Math.Cos(Angle(V, R)), m);
+            return (kd * IL.x * IO.x * angle1 + ks * IL.x * IO.x * angle2,
+                kd * IL.y * IO.y * angle1 + ks * IL.y * IO.y * angle2,
+                kd * IL.z * IO.z * angle1 + ks * IL.z * IO.z * angle2);
         }
 
         public MainWindow()
@@ -221,8 +256,7 @@ namespace ScanlineRendering
             double ymin = triangle.Edges.Max((e) => { return e.From.Y; });
             double ymax = triangle.Edges.Min((e) => { return e.From.Y; });
             ET = new List<EdgeET>[(int)(ymin + 1)];
-            double miny, maxy;
-            double minx, maxx;
+            double miny, minx;
             foreach (var edge in triangle.Edges)
             {
                 if (edge.From.Y == edge.To.Y)
@@ -280,19 +314,21 @@ namespace ScanlineRendering
                         //    rec.Fill = new SolidColorBrush(Colors.Red);
                         //    Board.Children.Add(rec);
                         //}
+                        (double x, double y, double z) vector = I();
+                        Color c = Color.FromRgb((byte)vector.x, (byte)vector.y, (byte)vector.z);
                         Board.Children.Add(new Line()
                         {
-                            Stroke = Brushes.Red,
-                            StrokeThickness = 1.5,
+                            Stroke = new SolidColorBrush(c),
+                            StrokeThickness = 2,
                             X1 = x1,
                             Y1 = indmin,
                             X2 = x2,
                             Y2 = indmin
                         });
                     }
-                    if (AET[k].ymax == indmin)
+                    if (Math.Round(AET[k].ymax) == indmin)
                         todel.Add(AET[k]);
-                    if (k < AET.Count - 1 && AET[k + 1].ymax == indmin)
+                    if (k < AET.Count - 1 && Math.Round(AET[k + 1].ymax) == indmin)
                         todel.Add(AET[k + 1]);
 
                 }

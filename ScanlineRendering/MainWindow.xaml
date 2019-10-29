@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Name="Main"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Scanline Rendering" Height="600" Width="900" ResizeMode="NoResize">
+        Title="Scanline Rendering" Height="750" Width="1300" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"/>
@@ -17,14 +17,24 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="N: " VerticalAlignment="Center"/>
-            <TextBox Name="NSize" Grid.Column="1" VerticalAlignment="Center">
+            <TextBox Name="NSize" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center">
                 <Binding Path="Triangles.N" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
                          NotifyOnValidationError="True">
                     <Binding.ValidationRules>
@@ -34,7 +44,7 @@
             </TextBox>
 
             <TextBlock Grid.Row="1" Text="M: " VerticalAlignment="Center"/>
-            <TextBox Name="MSize" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center">
+            <TextBox Name="MSize" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center">
                 <Binding Path="Triangles.M" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
                          NotifyOnValidationError="True">
                     <Binding.ValidationRules>
@@ -42,6 +52,75 @@
                     </Binding.ValidationRules>
                 </Binding>
             </TextBox>
+
+            <TextBlock Grid.Row="2" Text="k, m: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" GroupName="km"
+                         IsChecked="{Binding Path=KMMode, ElementName=Main, Mode=TwoWay}">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="random" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <RadioButton Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" GroupName="km">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="sliders" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <StackPanel Grid.Row="3">
+            </StackPanel>
+
+            <TextBlock Grid.Row="4" Text="Io: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" GroupName="Io">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <RadioButton Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" GroupName="Io">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <StackPanel Grid.Row="5">
+            </StackPanel>
+
+            <TextBlock Grid.Row="6" Text="N(vector): " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <RadioButton Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" GroupName="N">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <StackPanel Grid.Row="7">
+            </StackPanel>
+
+            <TextBlock Grid.Row="8" Text="Fill color: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" GroupName="Color">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <RadioButton Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" GroupName="Color">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <StackPanel Grid.Row="9">
+            </StackPanel>
+
+            <TextBlock Grid.Row="10" Text="L: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
+            <RadioButton Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" GroupName="N">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="moving" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
                 Loaded="OnCanvasLoaded" Margin="10, 10, 10, 10" MouseMove="OnCanvasMouseMove"
