@@ -33,7 +33,8 @@ namespace ScanlineRendering
         public void AddTriangleToCanvas(Canvas canvas)
         {
             foreach (var edge in Edges)
-                canvas.Children.Add(new Line()
+            {
+                var line = new Line()
                 {
                     Stroke = Brushes.Black,
                     StrokeThickness = 1,
@@ -41,7 +42,9 @@ namespace ScanlineRendering
                     Y1 = edge.From.Y,
                     X2 = edge.To.X,
                     Y2 = edge.To.Y
-                });
+                };
+                canvas.Children.Add(line);
+            }
         }
     }
 }

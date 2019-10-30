@@ -4,10 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScanlineRendering"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Name="Main"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Scanline Rendering" Height="750" Width="1300" ResizeMode="NoResize">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:BoolInverterConverter x:Key="BoolInverterConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"/>
@@ -15,18 +21,19 @@
         </Grid.ColumnDefinitions>
         <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="10, 10, 20, 10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -54,33 +61,72 @@
             </TextBox>
 
             <TextBlock Grid.Row="2" Text="k, m: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" GroupName="km"
-                         IsChecked="{Binding Path=KMMode, ElementName=Main, Mode=TwoWay}">
+            <RadioButton Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" GroupName="km" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="random" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" GroupName="km">
+            <RadioButton Name="SlidersRadioButton" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" GroupName="km"
+                    IsChecked="{Binding Path=KMMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                    UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="sliders" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <StackPanel Grid.Row="3">
-            </StackPanel>
+            <Grid Grid.Row="3" Grid.ColumnSpan="3" Visibility="{Binding Path=IsChecked, ElementName=SlidersRadioButton,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0">ks:</TextBlock>
+                <Slider Name="SliderKs" Grid.Row="0" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=SliderKs, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="1"  Grid.Column="0">kd:</TextBlock>
+                <Slider Name="SliderKd" Grid.Row="1" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=SliderKd, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0">m:</TextBlock>
+                <Slider Name="SliderM" Grid.Row="2" Grid.Column="1" Maximum="100" Margin="0, 0, 10, 0" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=SliderM, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
+            </Grid>
 
             <TextBlock Grid.Row="4" Text="Io: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" GroupName="Io">
+            <RadioButton Name="ConstColRadioButton" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" GroupName="Io" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" GroupName="Io">
+            <RadioButton Name="LoadColRadioButton" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" GroupName="Io"
+                    IsChecked="{Binding Path=IoMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                    UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <StackPanel Grid.Row="5">
-            </StackPanel>
+            <Grid Grid.Row="5" Grid.ColumnSpan="3" Visibility="{Binding ElementName=ConstColRadioButton, Path=IsChecked,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a color:</TextBlock>
+                <xceed:ColorPicker Name="ColPicker" Grid.Column="1"></xceed:ColorPicker>
+            </Grid>
+            <Grid Grid.Row="5" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadColRadioButton, Path=IsChecked,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a file:</TextBlock>
+                <Button Grid.Column="1">Load file</Button>
+            </Grid>
 
             <TextBlock Grid.Row="6" Text="N(vector): " VerticalAlignment="Center"/>
             <RadioButton Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
@@ -121,6 +167,8 @@
                     <TextBlock FontSize="11" Text="moving" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
+
+            <Button Grid.Row="11" Grid.ColumnSpan="3" Click="OnApplyChangesClick">Apply changes</Button>
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
                 Loaded="OnCanvasLoaded" Margin="10, 10, 10, 10" MouseMove="OnCanvasMouseMove"
