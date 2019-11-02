@@ -125,22 +125,31 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a file:</TextBlock>
-                <Button Grid.Column="1">Load file</Button>
+                <Button Grid.Column="1" Click="OnLoadColorButtonClick">Load file</Button>
             </Grid>
 
             <TextBlock Grid.Row="6" Text="N(vector): " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
+            <RadioButton Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" GroupName="N" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" GroupName="N">
+            <RadioButton Name="LoadNRadioButton" Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" GroupName="N"
+                IsChecked="{Binding Path=NMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <StackPanel Grid.Row="7">
-            </StackPanel>
+            <Grid Grid.Row="7" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadNRadioButton, Path=IsChecked,
+                Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a file:</TextBlock>
+                <Button Grid.Column="1" Click="OnLoadNButtonClick">Load file</Button>
+            </Grid>
 
             <TextBlock Grid.Row="8" Text="Fill color: " VerticalAlignment="Center"/>
             <RadioButton Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" GroupName="Color">
@@ -157,12 +166,14 @@
             </StackPanel>
 
             <TextBlock Grid.Row="10" Text="L: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
+            <RadioButton Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" GroupName="L" IsChecked="True" Click="OnNoLModeClick">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" GroupName="N">
+            <RadioButton Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
+                IsChecked="{Binding Path=LMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="moving" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
@@ -171,7 +182,7 @@
             <Button Grid.Row="11" Grid.ColumnSpan="3" Click="OnApplyChangesClick">Apply changes</Button>
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
-                Loaded="OnCanvasLoaded" Margin="10, 10, 10, 10" MouseMove="OnCanvasMouseMove"
+                Loaded="OnCanvasLoaded" MouseMove="OnCanvasMouseMove"
                 MouseLeftButtonUp="OnCanvasMouseUp" Background="Transparent" MouseLeave="OnCanvasMouseLeave">
         </Canvas>
     </Grid>
