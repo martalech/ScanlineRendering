@@ -36,7 +36,7 @@ public class VisualHost: UIElement
 
 namespace ScanlineRendering
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private TrianglesInfo trianglesInfo;
         private Vertex movingPoint = null;
@@ -49,29 +49,57 @@ namespace ScanlineRendering
 
         public bool KMMode { get; set; } = false;
         public bool NMode { get; set; } = false;
-        public bool ColorMMode { get; set; } = false;
+        public bool InterpolMode { get; set; } = false;
+        public bool HybridMode { get; set; } = false;
         public bool IoMode { get; set; } = false;
         public bool LMode { get; set; } = false;
 
+        public int Stride { get; set; }
+
         Vector3D LVector = new Vector3D(0, 0, 1);
+        Vector3D ILVector = new Vector3D(1, 1, 1);
 
         private byte[] NBitmap, ColBitmap;
         private int nBitmapStride, colBitmapStride;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private double Angle(Vector3D v1, Vector3D v2)
         {
             return Vector3D.DotProduct(v1, v2);
         }
 
-        private Vector3D I(double kd, double ks, double m, Color c, Vector3D N)
+        public TrianglesInfo TrianglesInfo
+        {
+            get
+            {
+                return trianglesInfo;
+            }
+            set
+            {
+                if (value != trianglesInfo)
+                {
+                    trianglesInfo = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public void RaisePropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private Vector3D I(double kd, double ks, double m, Color c, Vector3D N, int x, int y)
         {
             Vector3D V, IO, IL, R;
             V = new Vector3D(0, 0, 1);
-            //L = new Vector3D(0, 0, 1);
-            IL = new Vector3D(1, 1, 1);
+            IL = ILVector;
             IO = new Vector3D(c.R, c.G, c.B);
-            R = 2 * N - LVector;
-            var lol = Vector3D.AngleBetween(N, LVector);
-            double angle1 = Math.Cos(Angle(N, LVector));
+            Vector3D L = LVector;
+            R = 2 * N - L;
+            var lol = Vector3D.AngleBetween(N, L);
+            double angle1 = Math.Cos(Angle(N, L));
             double angle2 = Math.Pow(Math.Cos(Angle(V, R)), m);
             return new Vector3D((kd * IL.X * IO.X * angle1) + (ks * IL.X * IO.X * angle2),
                 (kd * IL.Y * IO.Y * angle1) + (ks * IL.Y * IO.Y * angle2),
@@ -81,10 +109,10 @@ namespace ScanlineRendering
         public MainWindow()
         {
             InitializeComponent();
-            trianglesInfo = new TrianglesInfo("70", "90");
+            TrianglesInfo = new TrianglesInfo("70", "40");
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += DispatcherTimer_Tick;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 12);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
             dispatcherTimer.Start();
         }
 
@@ -123,31 +151,41 @@ namespace ScanlineRendering
 
         private void OnCanvasMouseMove(object sender, MouseEventArgs e)
         {
-            e.Handled = true;
+            //e.Handled = true;
             var mouse = e.GetPosition(Board);
             if (e.LeftButton == MouseButtonState.Pressed && movingPoint != null)
             {
                 movingPoint.Coord = new Point(mouse.X, mouse.Y);
-                //RepaintTriangles(false);
-                ////foreach (var t in movingPoint.Triangles)
-                ////    ScanLine(t);
-                foreach (var t in movingPoint.Triangles)
-                    t.AddTriangleToCanvas(Board);
+                RepaintTriangles(false);
+                //List<Line> todel = new List<Line>();
+                //foreach (var line in Board.Children)
+                //{
+                //    if (line is Line)
+                //    {
+                //        todel.Add(line as Line);
+                //    }
+                //}
+                //foreach (var el in todel)
+                //{
+
+                //}
+                //foreach (var t in movingPoint.Triangles)
+                //    t.AddTriangleToCanvas(Board);
             }
         }
 
         private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
             var mouse = e.GetPosition(Board);
-            if (e.LeftButton == MouseButtonState.Pressed && movingPoint != null)
-            {
-                movingPoint.Coord = new Point(mouse.X, mouse.Y);
-                RepaintTriangles(false);
-                //foreach (var t in movingPoint.Triangles)
-                //    ScanLine(t);
-                //foreach (var t in movingPoint.Triangles)
-                //    t.AddTriangleToCanvas(Board);
-            }
+            //if (e.LeftButton == MouseButtonState.Pressed && movingPoint != null)
+            //{
+            //    movingPoint.Coord = new Point(mouse.X, mouse.Y);
+            //    RepaintTriangles(false);
+            //    //foreach (var t in movingPoint.Triangles)
+            //    //    ScanLine(t);
+            //    //foreach (var t in movingPoint.Triangles)
+            //    //    t.AddTriangleToCanvas(Board);
+            //}
             movingPoint = null;
         }
 
@@ -258,8 +296,17 @@ namespace ScanlineRendering
 
         private void PaintTriangles()
         {
+            WriteableBitmap writeableBitmap = new WriteableBitmap((int)Board.ActualWidth, (int)Board.ActualHeight,
+                96, 96, PixelFormats.Bgra32, null);
+            byte[] pixels = new byte[(int)Board.ActualWidth * (int)Board.ActualHeight * 4];
+            Stride = 4 * (int)Board.ActualWidth;
             foreach (var triangle in triangles)
-                ScanLine(triangle);
+                ScanLine(triangle, pixels);
+            Int32Rect rect = new Int32Rect(0, 0, (int)Board.ActualWidth, (int)Board.ActualHeight);
+            writeableBitmap.WritePixels(rect, pixels, Stride, 0);
+            Image image = new Image();
+            image.Source = writeableBitmap;
+            Board.Children.Add(image);
             foreach (var triangle in triangles)
             {
                 foreach (var edge in triangle.Edges)
@@ -279,11 +326,11 @@ namespace ScanlineRendering
                 //triangle.AddTriangleToCanvas(Board);
         }
 
-        private void ScanLine(Triangle triangle)
+        private void ScanLine(Triangle triangle, byte[] pixels)
         {
             double ymin = triangle.Edges.Max((e) => { return e.From.Y; });
             double ymax = triangle.Edges.Min((e) => { return e.From.Y; });
-            ET = new List<EdgeET>[(int)(ymin + 1)];
+            ET = new List<EdgeET>[(int)Math.Round(ymin) + 1];
             double miny, minx;
             foreach (var edge in triangle.Edges)
             {
@@ -291,9 +338,9 @@ namespace ScanlineRendering
                     continue;
                 miny = edge.From.Y < edge.To.Y ? edge.To.Y : edge.From.Y;
                 minx = miny == edge.From.Y ? edge.From.X : edge.To.X;
-                if (ET[(int)(miny)] == null)
-                    ET[(int)(miny)] = new List<EdgeET>();
-                ET[(int)(miny)].Add(new EdgeET(edge));
+                if (ET[(int)Math.Round(miny)] == null)
+                    ET[(int)Math.Round(miny)] = new List<EdgeET>();
+                ET[(int)Math.Round(miny)].Add(new EdgeET(edge));
             }
             int i = 0;
             int indmin = -1;
@@ -312,8 +359,7 @@ namespace ScanlineRendering
             }
             AET = new List<EdgeET>();
             int elo = indmin;
-            DrawingVisual drawingVisual = new DrawingVisual();
-            DrawingContext drawingContext = drawingVisual.RenderOpen();
+            Image Image = new Image();
             double kd, ks, m;
             Color c = Colors.Blue;
             Vector3D N = new Vector3D(0, 0, 1);
@@ -356,7 +402,7 @@ namespace ScanlineRendering
                     {
                         double x1 = AET[k].xmin;
                         double x2 = AET[k + 1].xmin;
-                        for (double x = x1; x < x2; x++)
+                        for (double x = Math.Round(x1); x <= Math.Round(x2); x++)
                         {
                             Color col;
                             if (IoMode)
@@ -368,18 +414,64 @@ namespace ScanlineRendering
                             {
                                 int index = (int)Math.Round(x) * 4 + indmin * nBitmapStride;
                                 Vector3D v3d = new Vector3D(NBitmap[index + 2], NBitmap[index + 1], NBitmap[index]);
-                                if(v3d.X != 128)
-                                {
-                                    Debug.WriteLine("elo");
-                                }
-                                N = new Vector3D((2 * (double)NBitmap[index + 2] - 256) / 255, (2 * (double)NBitmap[index + 1] - 256) / 255,
-                                    (2 * (double)NBitmap[index] - 255) / 255);
-                                //N.Normalize();
+                                N = new Vector3D((NBitmap[index + 2] == 0 ? -1 : (double)NBitmap[index + 2] - 127) / 128, (NBitmap[index + 1] == 0 ? -1 : 
+                                    (double)NBitmap[index + 1] - 127) / 128, (double)NBitmap[index] / 255);
                             }
-                            Vector3D vector = I(kd, ks, m, c, N);
+                            Vector3D vector = new Vector3D(0, 0, 0);
+                            if (!HybridMode && !InterpolMode)
+                                vector = I(kd, ks, m, c, N, (int)Math.Round(x), indmin);
+                            else if (InterpolMode && IoMode)
+                            {
+                                int wx1 = (int)triangle.Edges[0].From.X;
+                                int wx2 = (int)triangle.Edges[1].From.X;
+                                int wx3 = (int)triangle.Edges[2].From.X;
+                                int wy1 = (int)triangle.Edges[0].From.Y;
+                                int wy2 = (int)triangle.Edges[1].From.Y;
+                                int wy3 = (int)triangle.Edges[2].From.Y;
+                                int index1 = wx1 * 4 + wy1 * colBitmapStride;
+                                Color c1 = Color.FromRgb(ColBitmap[index1 + 2], ColBitmap[index1 + 1], ColBitmap[index1]);
+                                int index2 = wx2 * 4 + wy2 * colBitmapStride;
+                                Color c2 = Color.FromRgb(ColBitmap[index2 + 2], ColBitmap[index2 + 1], ColBitmap[index2]);
+                                int index3 = wx3 * 4 + wy3 * colBitmapStride;
+                                Color c3 = Color.FromRgb(ColBitmap[index3 + 2], ColBitmap[index3 + 1], ColBitmap[index3]);
+                                Vector3D v1 = I(kd, ks, m, c1, N, wx1, wy1);
+                                Vector3D v2 = I(kd, ks, m, c2, N, wx2, wy2);
+                                Vector3D v3 = I(kd, ks, m, c3, N, wx3, wy3);
+                                double l1 = CalculateLength((int)x, indmin, wx1, wy1);
+                                double l2 = CalculateLength((int)x, indmin, wx2, wy2);
+                                double l3 = CalculateLength((int)x, indmin, wx3, wy3);
+                                vector = (v1 *l1 + v2 * l2 + v3 * l3) / (l1 + l2 + l3);
+                            }
+                            else if (HybridMode && IoMode)
+                            {
+                                int wx1 = (int)triangle.Edges[0].From.X;
+                                int wx2 = (int)triangle.Edges[1].From.X;
+                                int wx3 = (int)triangle.Edges[2].From.X;
+                                int wy1 = (int)triangle.Edges[0].From.Y;
+                                int wy2 = (int)triangle.Edges[1].From.Y;
+                                int wy3 = (int)triangle.Edges[2].From.Y;
+                                double gamma = (indmin * wx2 - indmin * wx1 - wx2 * wy1 + x * wy1 - x * wy2 + wx1 * wy2)
+                                    / (wy1 * wx3 - wy1 * wx2 + wx1 * wy2 - wx3 * wy2 + wy3 * wx2 - wy3 * wx1);
+                                double beta = (x + gamma * wx1 - gamma * wx3 - wx1) / (wx2 - wx1);
+                                double alfa = 1 - beta - gamma;
+
+                                int index1 = wx1 * 4 + wy1 * colBitmapStride;
+                                Color c1 = Color.FromRgb(ColBitmap[index1 + 2], ColBitmap[index1 + 1], ColBitmap[index1]);
+                                int index2 = wx2 * 4 + wy2 * colBitmapStride;
+                                Color c2 = Color.FromRgb(ColBitmap[index2 + 2], ColBitmap[index2 + 1], ColBitmap[index2]);
+                                int index3 = wx3 * 4 + wy3 * colBitmapStride;
+                                Color c3 = Color.FromRgb(ColBitmap[index3 + 2], ColBitmap[index3 + 1], ColBitmap[index3]);
+                                Vector3D v1 = I(kd, ks, m, c1, N, wx1, wy1);
+                                Vector3D v2 = I(kd, ks, m, c2, N, wx2, wy2);
+                                Vector3D v3 = I(kd, ks, m, c3, N, wx3, wy3);
+                                vector = alfa * v1 + beta * v2 + gamma * v3;
+                            }
                             col = Color.FromRgb((byte)vector.X, (byte)vector.Y, (byte)vector.Z);
-                            var rec = new Rect(new Point(x - 0.5, indmin - 0.5), new Size(2, 2));
-                            drawingContext.DrawRectangle(new SolidColorBrush(col), null, rec);
+                            int indexx = (int)Math.Round(x) * 4 + indmin * Stride;
+                            pixels[indexx] = col.B;
+                            pixels[indexx + 1] = col.G;
+                            pixels[indexx + 2] = col.R;
+                            pixels[indexx + 3] = col.A;
                         }
                     }
                     if (Math.Round(AET[k].ymax) == indmin)
@@ -398,21 +490,17 @@ namespace ScanlineRendering
                     e.xmin -= e.m;
                 }
             }
-            drawingContext.Close();
-            var vs = new VisualHost { Visual = drawingVisual };
-            Board.Children.Add(vs);
+            //Board.Children.Add(vs);
         }
 
         private void OnLModeClick(object sender, RoutedEventArgs e)
         {
-            LVector = new Vector3D(1, 1, 1);
-            RepaintTriangles();
+            LVector = new Vector3D(0.3, 0.2, 1);
         }
 
         private void OnNoLModeClick(object sender, RoutedEventArgs e)
         {
             LVector = new Vector3D(0, 0, 1);
-            RepaintTriangles();
         }
 
         private bool IsArrayEmpty(List<EdgeET>[] array)
@@ -455,6 +543,11 @@ namespace ScanlineRendering
 
         private void OnApplyChangesClick(object sender, RoutedEventArgs e)
         {
+            var col = ILColPicker.SelectedColor;
+            if (col.HasValue)
+            {
+                ILVector = new Vector3D((double)col.Value.R/255, (double)col.Value.G/255, (double)col.Value.B/255);
+            }
             RepaintTriangles(true);
         }
 
@@ -477,6 +570,12 @@ namespace ScanlineRendering
                     colBitmap2.CopyPixels(ColBitmap, colBitmapStride, 0);
                 }
             }
+        }
+
+        private int CalculateLength(int x1, int y1, int x2, int y2)
+        {
+            return (int)Math.Sqrt((Math.Abs(y2 - y1) * Math.Abs(y2 - y1))
+                + (Math.Abs(x2 - x1) * Math.Abs(x2 - x1)));
         }
     }
 }

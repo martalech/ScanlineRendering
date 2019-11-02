@@ -26,6 +26,7 @@
                 <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="Auto"/>
@@ -42,7 +43,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="N: " VerticalAlignment="Center"/>
             <TextBox Name="NSize" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center">
-                <Binding Path="Triangles.N" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                <Binding Path="TrianglesInfo.N" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
                          NotifyOnValidationError="True">
                     <Binding.ValidationRules>
                         <local:TrianglesSizeValidator/>
@@ -52,7 +53,7 @@
 
             <TextBlock Grid.Row="1" Text="M: " VerticalAlignment="Center"/>
             <TextBox Name="MSize" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center">
-                <Binding Path="Triangles.M" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                <Binding Path="TrianglesInfo.M" ElementName="Main" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
                          NotifyOnValidationError="True">
                     <Binding.ValidationRules>
                         <local:TrianglesSizeValidator/>
@@ -96,20 +97,23 @@
                 <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=SliderM, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
 
-            <TextBlock Grid.Row="4" Text="Io: " VerticalAlignment="Center"/>
-            <RadioButton Name="ConstColRadioButton" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" GroupName="Io" IsChecked="True">
+            <TextBlock Grid.Row="4" Text="IL: " VerticalAlignment="Center"/>
+            <wpfTool:ColorPicker Grid.Row="4" Name="ILColPicker" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+            <TextBlock Grid.Row="5" Text="Io: " VerticalAlignment="Center"/>
+            <RadioButton Name="ConstColRadioButton" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" GroupName="Io" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Name="LoadColRadioButton" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" GroupName="Io"
+            <RadioButton Name="LoadColRadioButton" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" GroupName="Io"
                     IsChecked="{Binding Path=IoMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                     UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <Grid Grid.Row="5" Grid.ColumnSpan="3" Visibility="{Binding ElementName=ConstColRadioButton, Path=IsChecked,
+            <Grid Grid.Row="6" Grid.ColumnSpan="3" Visibility="{Binding ElementName=ConstColRadioButton, Path=IsChecked,
                 Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -118,7 +122,7 @@
                 <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a color:</TextBlock>
                 <xceed:ColorPicker Name="ColPicker" Grid.Column="1"></xceed:ColorPicker>
             </Grid>
-            <Grid Grid.Row="5" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadColRadioButton, Path=IsChecked,
+            <Grid Grid.Row="6" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadColRadioButton, Path=IsChecked,
                 Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -128,20 +132,20 @@
                 <Button Grid.Column="1" Click="OnLoadColorButtonClick">Load file</Button>
             </Grid>
 
-            <TextBlock Grid.Row="6" Text="N(vector): " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" GroupName="N" IsChecked="True">
+            <TextBlock Grid.Row="7" Text="N(vector): " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" GroupName="N" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Name="LoadNRadioButton" Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" GroupName="N"
+            <RadioButton Name="LoadNRadioButton" Grid.Row="7" Grid.Column="2" VerticalAlignment="Center" GroupName="N"
                 IsChecked="{Binding Path=NMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <Grid Grid.Row="7" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadNRadioButton, Path=IsChecked,
+            <Grid Grid.Row="8" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadNRadioButton, Path=IsChecked,
                 Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -151,27 +155,32 @@
                 <Button Grid.Column="1" Click="OnLoadNButtonClick">Load file</Button>
             </Grid>
 
-            <TextBlock Grid.Row="8" Text="Fill color: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="8" Grid.Column="1" VerticalAlignment="Center" GroupName="Color">
+            <TextBlock Grid.Row="9" Text="Fill color: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" GroupName="Color" IsChecked="True">
                 <RadioButton.Content>
-                    <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
+                    <TextBlock FontSize="11" Text="accurate" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="8" Grid.Column="2" VerticalAlignment="Center" GroupName="Color">
+            <RadioButton Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=HybridMode,
+                ElementName=Main, Converter={StaticResource BoolInverterConverter}, UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
-                    <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
+                    <TextBlock FontSize="11" Text="hybrid" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <StackPanel Grid.Row="9">
-            </StackPanel>
+            <RadioButton Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=InterpolMode,
+                ElementName=Main, Converter={StaticResource BoolInverterConverter}, UpdateSourceTrigger=PropertyChanged}">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="interpolation" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
 
-            <TextBlock Grid.Row="10" Text="L: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" GroupName="L" IsChecked="True" Click="OnNoLModeClick">
+            <TextBlock Grid.Row="11" Text="L: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="11" Grid.Column="1" VerticalAlignment="Center" GroupName="L" IsChecked="True" Click="OnNoLModeClick">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
+            <RadioButton Grid.Row="11" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
                 IsChecked="{Binding Path=LMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
@@ -179,7 +188,7 @@
                 </RadioButton.Content>
             </RadioButton>
 
-            <Button Grid.Row="11" Grid.ColumnSpan="3" Click="OnApplyChangesClick">Apply changes</Button>
+            <Button Grid.Row="12" Grid.ColumnSpan="3" Click="OnApplyChangesClick">Apply changes</Button>
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
                 Loaded="OnCanvasLoaded" MouseMove="OnCanvasMouseMove"
