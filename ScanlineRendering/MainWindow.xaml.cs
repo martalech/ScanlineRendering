@@ -58,6 +58,7 @@ namespace ScanlineRendering
         public bool LMode { get; set; } = false;
 
         public int Stride { get; set; }
+        bool trianglesinfochanged = false;
 
         Vector3D LVector = new Vector3D(0, 0, 1);
         Vector3D ILVector = new Vector3D(1, 1, 1);
@@ -113,10 +114,16 @@ namespace ScanlineRendering
         {
             InitializeComponent();
             TrianglesInfo = new TrianglesInfo("70", "40");
+            TrianglesInfo.PropertyChanged += TrianglesInfo_PropertyChanged;
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += DispatcherTimer_Tick;
             dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
             dispatcherTimer.Start();
+        }
+
+        private void TrianglesInfo_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            trianglesinfochanged = true;
         }
 
         private void DispatcherTimer_Tick(object sender, EventArgs e)
@@ -152,6 +159,7 @@ namespace ScanlineRendering
             LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
             LoadNBitmap(Properties.Resources.Carpet_01_NRM);
             RepaintTriangles(true);
+            trianglesinfochanged = false;
         }
 
         private void OnCanvasMouseMove(object sender, MouseEventArgs e)
@@ -554,7 +562,11 @@ namespace ScanlineRendering
             {
                 ILVector = new Vector3D((double)col.Value.R/255, (double)col.Value.G/255, (double)col.Value.B/255);
             }
-            RepaintTriangles(true);
+            if (trianglesinfochanged)
+                RepaintTriangles(true);
+            else
+                RepaintTriangles(false);
+            trianglesinfochanged = false;
         }
 
         private void OnLoadColorButtonClick(object sender, RoutedEventArgs e)
