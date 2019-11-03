@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,10 +51,10 @@ namespace ScanlineRendering
         private Vertex[,] vertices;
 
         public bool KMMode { get; set; } = false;
-        public bool NMode { get; set; } = false;
+        public bool NMode { get; set; } = true;
         public bool InterpolMode { get; set; } = false;
         public bool HybridMode { get; set; } = false;
-        public bool IoMode { get; set; } = false;
+        public bool IoMode { get; set; } = true;
         public bool LMode { get; set; } = false;
 
         public int Stride { get; set; }
@@ -146,6 +149,8 @@ namespace ScanlineRendering
 
         private void OnCanvasLoaded(object sender, RoutedEventArgs e)
         {
+            LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
+            LoadNBitmap(Properties.Resources.Carpet_01_NRM);
             RepaintTriangles(true);
         }
 
@@ -167,9 +172,9 @@ namespace ScanlineRendering
                 //}
                 //foreach (var el in todel)
                 //{
-
+                //    Board.Children.Remove(el);
                 //}
-                //foreach (var t in movingPoint.Triangles)
+                //foreach (var t in trriangles)
                 //    t.AddTriangleToCanvas(Board);
             }
         }
@@ -215,12 +220,12 @@ namespace ScanlineRendering
                 triangles = new List<Triangle>();
                 for (int i = 0; i < heightCount; i++)
                 {
-                    for (int j = 0; j < widthCount - 1; j++)
+                    for (int j = 0; j < widthCount; j++)
                     {
-                        if (vertices[i, j] == null)
+                        if (i < heightCount && j < widthCount && vertices[i, j] == null)
                             vertices[i, j] = new Vertex(j * n, i * m);
-                        if (vertices[i, j + 1] == null)
-                            vertices[i, j + 1] = new Vertex((j + 1) * n, i * m);
+                        //if (vertices[i, j + 1] == null)
+                        //    vertices[i, j + 1] = new Vertex((j + 1) * n, i * m);
                         //var point = new Point(j * n, i * m);
                         //var ellipse = new Ellipse()
                         //{
@@ -244,7 +249,7 @@ namespace ScanlineRendering
                         //        Y2 = point.Y
                         //    });
                         //}
-                        if (i > 0 && j > 0 && j + 1 < widthCount)
+                        if (i > 0 && j > 0)
                         {
                             //Board.Children.Add(new Line()
                             //{
@@ -259,10 +264,10 @@ namespace ScanlineRendering
                             //Vertex leftBottom = new Vertex(j * n, i * m);
                             //Vertex rightBottom = new Vertex((j + 1) * n, i * m);
                             //Vertex rightTop = new Vertex((j + 1) * n, (i - 1) * m);
-                            Vertex leftTop = vertices[i - 1, j];
-                            Vertex leftBottom = vertices[i, j];
-                            Vertex rightBottom = vertices[i, j + 1];
-                            Vertex rightTop = vertices[i - 1, j + 1];
+                            Vertex leftTop = vertices[i - 1, j - 1];
+                            Vertex leftBottom = vertices[i, j - 1];
+                            Vertex rightBottom = vertices[i, j];
+                            Vertex rightTop = vertices[i - 1, j];
                             Triangle lowerTriangle = new Triangle(new Edge(leftBottom, rightBottom), new Edge(rightBottom, rightTop), new Edge(rightTop, leftBottom));
                             Triangle upperTriangle = new Triangle(new Edge(leftBottom, rightTop), new Edge(rightTop, leftTop), new Edge(leftTop, leftBottom));
                             upperTriangle.AddTriangleToCanvas(Board);
@@ -323,7 +328,6 @@ namespace ScanlineRendering
                     Board.Children.Add(line);
                 }
             }
-                //triangle.AddTriangleToCanvas(Board);
         }
 
         private void ScanLine(Triangle triangle, byte[] pixels)
@@ -385,7 +389,7 @@ namespace ScanlineRendering
             }
             while (!(AET.Count == 0 && IsArrayEmpty(ET)))
             {
-                if (ET[indmin] != null)
+                if (indmin > 0 && ET[indmin] != null)
                 {
                     foreach (var e in ET[indmin])
                         AET.Add(e);
@@ -393,15 +397,18 @@ namespace ScanlineRendering
                 }
                 AET.Sort((el1, el2) =>
                 {
-                    return (int)(el1.xmin - el2.xmin);
+                    return (int)(el1.xmin - el2.xmin) == 0 ? (int)(el1.ymax - el2.ymax) : (int)(el1.xmin - el2.xmin);
                 });
                 List<EdgeET> todel = new List<EdgeET>();
-                for(int k = 0; k < AET.Count; k += 2)
+                for(int k = 0; k < AET.Count; k++)
                 {
+                    double xx1, xx2;
                     if (k < AET.Count - 1)
                     {
                         double x1 = AET[k].xmin;
                         double x2 = AET[k + 1].xmin;
+                        xx1 = x1;
+                        xx2 = x2;
                         for (double x = Math.Round(x1); x <= Math.Round(x2); x++)
                         {
                             Color col;
@@ -474,23 +481,22 @@ namespace ScanlineRendering
                             pixels[indexx + 3] = col.A;
                         }
                     }
+                }
+                for (int k = 0; k < AET.Count; k++)
+                {
                     if (Math.Round(AET[k].ymax) == indmin)
                         todel.Add(AET[k]);
-                    if (k < AET.Count - 1 && Math.Round(AET[k + 1].ymax) == indmin)
-                        todel.Add(AET[k + 1]);
-
-                }
-                foreach(var t in todel)
-                {
-                    AET.Remove(t);
                 }
                 indmin--;
-                foreach(var e in AET)
+                foreach (var e in AET)
                 {
                     e.xmin -= e.m;
                 }
+                foreach (var t in todel)
+                {
+                    AET.Remove(t);
+                }
             }
-            //Board.Children.Add(vs);
         }
 
         private void OnLModeClick(object sender, RoutedEventArgs e)
@@ -572,10 +578,52 @@ namespace ScanlineRendering
             }
         }
 
+        private void LoadColBitmap(System.Drawing.Bitmap bitmap)
+        {
+            BitmapImage colBitmap = ToBitmapImage(bitmap);
+            double scaleX = Board.ActualWidth / colBitmap.PixelWidth;
+            double scaleY = Board.ActualHeight / colBitmap.PixelHeight;
+            var colBitmap2 = new TransformedBitmap(colBitmap, new ScaleTransform(scaleX, scaleY));
+            colBitmapStride = ((colBitmap2.PixelWidth * colBitmap2.Format.BitsPerPixel + 7) / 8);
+            int colBitmapSize = colBitmapStride * colBitmap2.PixelHeight;
+            ColBitmap = new byte[colBitmapSize];
+            colBitmap2.CopyPixels(ColBitmap, colBitmapStride, 0);
+        }
+
+        private void LoadNBitmap(System.Drawing.Bitmap bitmap)
+        {
+            BitmapImage nBitmap = ToBitmapImage(bitmap);
+            double scaleX = Board.ActualWidth / nBitmap.PixelWidth;
+            double scaleY = Board.ActualHeight / nBitmap.PixelHeight;
+            var nBitmap2 = new TransformedBitmap(nBitmap, new ScaleTransform(scaleX, scaleY));
+            nBitmapStride = ((nBitmap2.PixelWidth * nBitmap2.Format.BitsPerPixel + 7) / 8);
+            int nBitmapSize = nBitmapStride * nBitmap2.PixelHeight;
+            NBitmap = new byte[nBitmapSize];
+            nBitmap2.CopyPixels(NBitmap, nBitmapStride, 0);
+        }
+
         private int CalculateLength(int x1, int y1, int x2, int y2)
         {
             return (int)Math.Sqrt((Math.Abs(y2 - y1) * Math.Abs(y2 - y1))
                 + (Math.Abs(x2 - x1) * Math.Abs(x2 - x1)));
+        }
+
+        public static BitmapImage ToBitmapImage(System.Drawing.Bitmap bitmap)
+        {
+            using (var memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Jpeg);
+                memory.Position = 0;
+
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+
+                return bitmapImage;
+            }
         }
     }
 }

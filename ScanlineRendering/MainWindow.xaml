@@ -98,10 +98,10 @@
             </Grid>
 
             <TextBlock Grid.Row="4" Text="IL: " VerticalAlignment="Center"/>
-            <wpfTool:ColorPicker Grid.Row="4" Name="ILColPicker" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <wpfTool:ColorPicker Grid.Row="4" Name="ILColPicker" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
 
             <TextBlock Grid.Row="5" Text="Io: " VerticalAlignment="Center"/>
-            <RadioButton Name="ConstColRadioButton" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" GroupName="Io" IsChecked="True">
+            <RadioButton Name="ConstColRadioButton" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" GroupName="Io">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
@@ -133,7 +133,7 @@
             </Grid>
 
             <TextBlock Grid.Row="7" Text="N(vector): " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" GroupName="N" IsChecked="True">
+            <RadioButton Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
@@ -192,7 +192,7 @@
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
                 Loaded="OnCanvasLoaded" MouseMove="OnCanvasMouseMove"
-                MouseLeftButtonUp="OnCanvasMouseUp" Background="Transparent" MouseLeave="OnCanvasMouseLeave">
+                MouseLeftButtonUp="OnCanvasMouseUp" Margin ="10, 10, 10, 10" Background="Transparent" MouseLeave="OnCanvasMouseLeave">
         </Canvas>
     </Grid>
 </Window>
