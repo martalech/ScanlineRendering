@@ -99,7 +99,7 @@ namespace ScanlineRendering
             appliedColorInfo = new FillColorInfo(0.5, 0.5, 1, Colors.Red, Colors.White);
             FillColorSettings = new FillColorSettings(false, true, false, false, true, false);
             appliedColorSettings = new FillColorSettings(false, true, false, false, true, false);
-            TrianglesInfo = new TrianglesInfo("70", "40");
+            TrianglesInfo = new TrianglesInfo("80", "60");
             TrianglesInfo.PropertyChanged += TrianglesInfo_PropertyChanged;
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += DispatcherTimer_Tick;
