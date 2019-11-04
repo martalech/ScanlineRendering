@@ -68,7 +68,7 @@
                 </RadioButton.Content>
             </RadioButton>
             <RadioButton Name="SlidersRadioButton" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" GroupName="km"
-                    IsChecked="{Binding Path=KMMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                    IsChecked="{Binding Path=FillColorSettings.KMSliders, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                     UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="sliders" HorizontalAlignment="Center"/>
@@ -88,20 +88,21 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0">ks:</TextBlock>
                 <Slider Name="SliderKs" Grid.Row="0" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"
-                        Value="{Binding ElementName=Main, Path=Ks, UpdateSourceTrigger=PropertyChanged}"/>
+                        Value="{Binding ElementName=Main, Path=FillColorInfo.Ks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=SliderKs, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="1"  Grid.Column="0">kd:</TextBlock>
                 <Slider Name="SliderKd" Grid.Row="1" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"
-                        Value="{Binding ElementName=Main, Path=Kd, UpdateSourceTrigger=PropertyChanged}"/>
+                        Value="{Binding ElementName=Main, Path=FillColorInfo.Kd, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=SliderKd, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0">m:</TextBlock>
                 <Slider Name="SliderM" Grid.Row="2" Grid.Column="1" Maximum="100" Margin="0, 0, 10, 0" TickFrequency="1" IsSnapToTickEnabled="True"
-                        Value="{Binding ElementName=Main, Path=M, UpdateSourceTrigger=PropertyChanged}"/>
+                        Value="{Binding ElementName=Main, Path=FillColorInfo.M, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=SliderM, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
 
             <TextBlock Grid.Row="4" Text="IL: " VerticalAlignment="Center"/>
-            <wpfTool:ColorPicker Grid.Row="4" Name="ILColPicker" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
+            <wpfTool:ColorPicker Grid.Row="4" Name="ILColPicker" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" SelectedColor="{Binding ElementName=Main,
+                Path=FillColorInfo.LightColor, UpdateSourceTrigger=PropertyChanged}"/>
 
             <TextBlock Grid.Row="5" Text="Io: " VerticalAlignment="Center"/>
             <RadioButton Name="ConstColRadioButton" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" GroupName="Io">
@@ -110,7 +111,7 @@
                 </RadioButton.Content>
             </RadioButton>
             <RadioButton Name="LoadColRadioButton" Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" GroupName="Io"
-                    IsChecked="{Binding Path=IoMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                    IsChecked="{Binding Path=FillColorSettings.ColorFromTexture, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                     UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
@@ -123,7 +124,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a color:</TextBlock>
-                <xceed:ColorPicker Name="ColPicker" Grid.Column="1"></xceed:ColorPicker>
+                <xceed:ColorPicker Name="ColPicker" Grid.Column="1" SelectedColor="{Binding ElementName=Main, Path=FillColorInfo.ObjectColor,
+                    UpdateSourceTrigger=PropertyChanged}"></xceed:ColorPicker>
             </Grid>
             <Grid Grid.Row="6" Grid.ColumnSpan="3" Visibility="{Binding ElementName=LoadColRadioButton, Path=IsChecked,
                 Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -136,13 +138,13 @@
             </Grid>
 
             <TextBlock Grid.Row="7" Text="N(vector): " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
+            <RadioButton Name="ConstNRadioButton" Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" GroupName="N">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
             <RadioButton Name="LoadNRadioButton" Grid.Row="7" Grid.Column="2" VerticalAlignment="Center" GroupName="N"
-                IsChecked="{Binding Path=NMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                IsChecked="{Binding Path=FillColorSettings.NormalMap, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="load" HorizontalAlignment="Center"/>
@@ -164,13 +166,13 @@
                     <TextBlock FontSize="11" Text="accurate" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=HybridMode,
+            <RadioButton Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.HybridMode,
                 ElementName=Main, Converter={StaticResource BoolInverterConverter}, UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="hybrid" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=InterpolMode,
+            <RadioButton Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.InterpolMode,
                 ElementName=Main, Converter={StaticResource BoolInverterConverter}, UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="interpolation" HorizontalAlignment="Center"/>
@@ -184,7 +186,7 @@
                 </RadioButton.Content>
             </RadioButton>
             <RadioButton Grid.Row="11" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
-                IsChecked="{Binding Path=LMode, ElementName=Main, Converter={StaticResource BoolInverterConverter},
+                IsChecked="{Binding Path=FillColorSettings.MovingLight, ElementName=Main, Converter={StaticResource BoolInverterConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="moving" HorizontalAlignment="Center"/>

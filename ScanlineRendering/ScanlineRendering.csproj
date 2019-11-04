@@ -74,6 +74,8 @@
     <Compile Include="BoolInverterConverter.cs" />
     <Compile Include="Edge.cs" />
     <Compile Include="EdgeET.cs" />
+    <Compile Include="FillColorInfo.cs" />
+    <Compile Include="FillColorSettings.cs" />
     <Compile Include="Triangle.cs" />
     <Compile Include="TrianglesInfo.cs" />
     <Compile Include="TrianglesSizeValidator.cs" />
