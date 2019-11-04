@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace ScanlineRendering
 {
-    class BoolInverterConverter : IValueConverter
+    class BoolConverter : IValueConverter
     {
         #region IValueConverter Members
 

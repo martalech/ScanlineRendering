@@ -6,7 +6,8 @@ namespace ScanlineRendering
 {
     public class FillColorSettings: DependencyObject, INotifyPropertyChanged
     {
-        private bool kMSliders, normalMap, interpolMode, hybridMode, colorFromTexture, movingLight;
+        private bool kMSliders, normalMap, interpolMode, hybridMode,
+            colorFromTexture, movingLight, nogrid;
 
         public bool KMSliders
         {
@@ -104,6 +105,22 @@ namespace ScanlineRendering
             }
         }
 
+        public bool NoGrid
+        {
+            get
+            {
+                return nogrid;
+            }
+            set
+            {
+                if (value != nogrid)
+                {
+                    nogrid = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void RaisePropertyChanged([CallerMemberName] string name = "")
@@ -111,7 +128,7 @@ namespace ScanlineRendering
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public FillColorSettings(bool km, bool n, bool interpol, bool hybrid, bool io, bool l)
+        public FillColorSettings(bool km, bool n, bool interpol, bool hybrid, bool io, bool l, bool nogrid = false)
         {
             KMSliders = km;
             NormalMap = n;
@@ -119,6 +136,7 @@ namespace ScanlineRendering
             HybridMode = hybrid;
             ColorFromTexture = io;
             MovingLight = l;
+            NoGrid = nogrid;
         }
     }
 }

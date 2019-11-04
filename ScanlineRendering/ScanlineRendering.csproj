@@ -71,7 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="BoolInverterConverter.cs" />
+    <Compile Include="BoolConverter.cs" />
     <Compile Include="Edge.cs" />
     <Compile Include="EdgeET.cs" />
     <Compile Include="FillColorInfo.cs" />

@@ -18,7 +18,7 @@ using System.Windows.Threading;
 
 namespace ScanlineRendering
 {
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class ScanlineRednering : Window, INotifyPropertyChanged
     {
         public FillColorInfo FillColorInfo
         {
@@ -92,7 +92,7 @@ namespace ScanlineRendering
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public MainWindow()
+        public ScanlineRednering()
         {
             InitializeComponent();
             FillColorInfo = new FillColorInfo(0.5, 0.5, 15, Colors.Red, Colors.White);
@@ -215,16 +215,14 @@ namespace ScanlineRendering
                 }
                 else
                 {
-                    MessageBox.Show("No file chosen. No normal map");
-                    FillColorSettings.NormalMap = false;
-                    ConstNRadioButton.IsChecked = true;
+                    MessageBox.Show("No file chosen. Applying default normal map");
+                    LoadNBitmap(Properties.Resources.Carpet_01_NRM);
                 }
             }
             else
             {
-                MessageBox.Show("No file chosen. No normal map");
-                FillColorSettings.NormalMap = false;
-                ConstNRadioButton.IsChecked = true;
+                MessageBox.Show("No file chosen. Applying default normal map");
+                LoadNBitmap(Properties.Resources.Carpet_01_NRM);
             }
         }
 
@@ -248,25 +246,39 @@ namespace ScanlineRendering
                 }
                 else
                 {
-                    MessageBox.Show("No file chosen. Applying constant color");
-                    FillColorSettings.ColorFromTexture = false;
-                    ConstColRadioButton.IsChecked = true;
+                    MessageBox.Show("No file chosen. Applying default color texture");
+                    LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
                 }
             }
             else
             {
-                MessageBox.Show("No file chosen. Applying constant color");
-                FillColorSettings.ColorFromTexture = false;
-                ConstColRadioButton.IsChecked = true;
+                MessageBox.Show("No file chosen. Applying default color texture");
+                LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
             }
         }
 
         private void OnApplyChangesClick(object sender, RoutedEventArgs e)
         {
+            if (!IsValid(NSize) || !IsValid(MSize))
+            {
+                MessageBox.Show("Please enter correct triangles' height and width (larger than 0)");
+                return;
+            }
             appliedColorInfo = new FillColorInfo(FillColorInfo.Ks, FillColorInfo.Kd, FillColorInfo.M,
                 FillColorInfo.ObjectColor, FillColorInfo.LightColor);
-            appliedColorSettings = new FillColorSettings(FillColorSettings.KMSliders, FillColorSettings.NormalMap, FillColorSettings.InterpolMode, FillColorSettings.HybridMode,
-                FillColorSettings.ColorFromTexture, FillColorSettings.MovingLight);
+            appliedColorSettings = new FillColorSettings(FillColorSettings.KMSliders, FillColorSettings.NormalMap, 
+                FillColorSettings.InterpolMode, FillColorSettings.HybridMode, FillColorSettings.ColorFromTexture,
+                FillColorSettings.MovingLight, FillColorSettings.NoGrid);
+            if (appliedColorSettings.NormalMap && NBitmap == null)
+            {
+                MessageBox.Show("No normal map chosen. Setting default normal map.");
+                LoadNBitmap(Properties.Resources.Carpet_01_NRM);
+            }
+            if (appliedColorSettings.ColorFromTexture && ColBitmap == null)
+            {
+                MessageBox.Show("No color texture chosen. Setting default color texture.");
+                LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
+            }
             if (trianglesInfoChanged)
                 RepaintTriangles(true);
             else
@@ -304,10 +316,15 @@ namespace ScanlineRendering
                             Vertex leftBottom = vertices[i, j - 1];
                             Vertex rightBottom = vertices[i, j];
                             Vertex rightTop = vertices[i - 1, j];
-                            Triangle lowerTriangle = new Triangle(new Edge(leftBottom, rightBottom), new Edge(rightBottom, rightTop), new Edge(rightTop, leftBottom));
-                            Triangle upperTriangle = new Triangle(new Edge(leftBottom, rightTop), new Edge(rightTop, leftTop), new Edge(leftTop, leftBottom));
-                            upperTriangle.AddTriangleToCanvas(Board);
-                            lowerTriangle.AddTriangleToCanvas(Board);
+                            Triangle lowerTriangle = new Triangle(new Edge(leftBottom, rightBottom), new Edge(rightBottom, rightTop),
+                                new Edge(rightTop, leftBottom));
+                            Triangle upperTriangle = new Triangle(new Edge(leftBottom, rightTop), new Edge(rightTop, leftTop),
+                                new Edge(leftTop, leftBottom));
+                            if (!appliedColorSettings.NoGrid)
+                            {
+                                upperTriangle.AddTriangleToCanvas(Board);
+                                lowerTriangle.AddTriangleToCanvas(Board);
+                            }
                             triangles.Add(upperTriangle);
                             triangles.Add(lowerTriangle);
                         }
@@ -331,19 +348,8 @@ namespace ScanlineRendering
             Board.Children.Add(image);
             foreach (var triangle in triangles)
             {
-                foreach (var edge in triangle.Edges)
-                {
-                    var line = new Line()
-                    {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 1,
-                        X1 = edge.From.X,
-                        Y1 = edge.From.Y,
-                        X2 = edge.To.X,
-                        Y2 = edge.To.Y
-                    };
-                    Board.Children.Add(line);
-                }
+                if (!appliedColorSettings.NoGrid)
+                    triangle.AddTriangleToCanvas(Board);
             }
         }
 
@@ -528,8 +534,9 @@ namespace ScanlineRendering
             if (appliedColorSettings.NormalMap)
             {
                 int index = x * 4 + y * nBitmapStride;
-                N = new Vector3D((NBitmap[index + 2] == 0 ? -1 : (double)NBitmap[index + 2] - 127) / 128, (NBitmap[index + 1] == 0 ? -1 :
-                        (double)NBitmap[index + 1] - 127) / 128, (double)NBitmap[index] / 255);
+                N = new Vector3D((NBitmap[index + 2] == 0 ? -1 : (double)NBitmap[index + 2] - 127) / 128,
+                    (NBitmap[index + 1] == 0 ? -1 : (double)NBitmap[index + 1] - 127) / 128,
+                    (double)NBitmap[index] / 255);
             }
             V = new Vector3D(0, 0, 1);
             Color light = appliedColorInfo.LightColor;
@@ -543,6 +550,16 @@ namespace ScanlineRendering
             return new Vector3D((kd * IL.X * IO.X * angle1) + (ks * IL.X * IO.X * angle2),
                 (kd * IL.Y * IO.Y * angle1) + (ks * IL.Y * IO.Y * angle2),
                 (kd * IL.Z * IO.Z * angle1) + (ks * IL.Z * IO.Z * angle2));
+        }
+
+        private void OnConstNRadioButonClick(object sender, RoutedEventArgs e)
+        {
+            NBitmap = null;
+        }
+
+        private void OnConstColRadioButtonClick(object sender, RoutedEventArgs e)
+        {
+            ColBitmap = null;
         }
 
         public static BitmapImage ToBitmapImage(System.Drawing.Bitmap bitmap)
@@ -559,6 +576,12 @@ namespace ScanlineRendering
                 bitmapImage.Freeze();
                 return bitmapImage;
             }
+        }
+
+        private bool IsValid(DependencyObject obj)
+        {
+            return !Validation.GetHasError(obj) && LogicalTreeHelper.GetChildren(obj).OfType<DependencyObject>()
+                .All(IsValid);
         }
 
         private int CalculateLength(int x1, int y1, int x2, int y2)
