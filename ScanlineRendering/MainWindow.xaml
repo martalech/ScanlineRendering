@@ -87,13 +87,16 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0">ks:</TextBlock>
-                <Slider Name="SliderKs" Grid.Row="0" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"/>
+                <Slider Name="SliderKs" Grid.Row="0" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=Main, Path=Ks, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=SliderKs, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="1"  Grid.Column="0">kd:</TextBlock>
-                <Slider Name="SliderKd" Grid.Row="1" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"/>
+                <Slider Name="SliderKd" Grid.Row="1" Grid.Column="1" Maximum="1" Margin="0, 0, 10, 0" TickFrequency="0.01" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=Main, Path=Kd, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=SliderKd, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0">m:</TextBlock>
-                <Slider Name="SliderM" Grid.Row="2" Grid.Column="1" Maximum="100" Margin="0, 0, 10, 0" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                <Slider Name="SliderM" Grid.Row="2" Grid.Column="1" Maximum="100" Margin="0, 0, 10, 0" TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding ElementName=Main, Path=M, UpdateSourceTrigger=PropertyChanged}"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=SliderM, Path=Value, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
 

@@ -57,6 +57,54 @@ namespace ScanlineRendering
         public bool IoMode { get; set; } = true;
         public bool LMode { get; set; } = false;
 
+        private double ks, kd, m;
+
+        public double Ks
+        {
+            get
+            {
+                return ks;
+            }
+            set
+            {
+                if (value != ks)
+                {
+                    ks = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+        public double Kd
+        {
+            get
+            {
+                return kd;
+            }
+            set
+            {
+                if (value != kd)
+                {
+                    kd = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+        public double M
+        {
+            get
+            {
+                return m;
+            }
+            set
+            {
+                if (value != m)
+                {
+                    m = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         public int Stride { get; set; }
         bool trianglesinfochanged = false;
 
@@ -91,6 +139,14 @@ namespace ScanlineRendering
 
         public void RaisePropertyChanged([CallerMemberName] string name = "")
         {
+            if (name == "Ks")
+            {
+                Kd = 1 - Ks;
+            }
+            else if (name == "Kd")
+            {
+                Ks = 1 - Kd;
+            }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
@@ -113,6 +169,9 @@ namespace ScanlineRendering
         public MainWindow()
         {
             InitializeComponent();
+            Ks = 0.5;
+            Kd = 0.5;
+            M = 20;
             TrianglesInfo = new TrianglesInfo("70", "40");
             TrianglesInfo.PropertyChanged += TrianglesInfo_PropertyChanged;
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
@@ -392,7 +451,7 @@ namespace ScanlineRendering
             {
                 Random random = new Random();
                 kd = random.NextDouble();
-                ks = random.NextDouble();
+                ks = 1 - kd;
                 m = random.Next() % 100 + 1;
             }
             while (!(AET.Count == 0 && IsArrayEmpty(ET)))
