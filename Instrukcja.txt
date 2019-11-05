@@ -1,0 +1,23 @@
+-----Instrukcja obsługi-----
+
+1) Klawiszologia:
+
+Funkcje kontrolek od góry:
+1. "N: " - szerokość pojedynczego trójkąta
+2. "M: " - wysokość pojedynczego trójkąta
+3. "k, m: " - radiobuttons (random - dla każdego trójkąta losowe wartości, sliders - pojawią się 3 slidery
+	dla ks, kd i m)
+4. "IL: " - kolor światła (wysuwana lista kolorów)
+5. "Io: " - tekstura obiektu (const. - stały kolor wybierany z wysuwanej listy, 
+	load - możliwość wybrania pliku z teksturą po naciśnięciu guzika "Load file")
+6. "N(vector): " - normal map (const. - stały wektor (0,0,1) w kązdym punkcie tesktury,
+	load - możliwość wybrania pliku z normal mapą po naciśnięciu guzika "Load file")
+7. "Fill color: " - metoda wypełniania pikseli - dokładna, hybrydowa i interpolowana
+8. "L: " - wektor źródła światła (const. - stały (0,0,1) w każdym punkcie, moving - źródło światła
+	poruszające się co 100ms o kąt 5 stopni po sferze)
+9. "Show grid: " - możliwość włączenia/wyłączenia siatki trójkątów
+10. "Apply changes" - przycisk służący do zapisania aktualnie wybranych ustawień; żadne zmiany nie będą
+	widoczne dopóki nie zostanie użyty
+
+Dodatkowo możliwość poruszania wierzchołkami trójkątów (tylko przy wyłączonej opcji poruszającego się
+	światła)

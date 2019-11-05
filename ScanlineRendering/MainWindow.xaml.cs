@@ -69,14 +69,15 @@ namespace ScanlineRendering
 
         private int mainStride;
         private bool trianglesInfoChanged = false;
-        private int n1, m1, ncount, mcount;
-        private int direction = 1;
+        private int direction = -1;
 
         private TrianglesInfo trianglesInfo;
         private FillColorInfo fillColorInfo;
         private FillColorInfo appliedColorInfo;
         private FillColorSettings fillColorSettings;
         private FillColorSettings appliedColorSettings;
+
+        private int ActualWidth1, ActualHeight1;
 
         private Vertex movingPoint = null;
         private List<Triangle> triangles = new List<Triangle>();
@@ -124,15 +125,16 @@ namespace ScanlineRendering
         {
             if (appliedColorSettings.MovingLight)
             {
-                double angle = direction * Math.PI / 180 * 10;
+                double angle = direction * Math.PI / 180 * 5;
                 double x = LVector.X;
                 double z = LVector.Z;
                 LVector.X = x * Math.Cos(angle) + z * Math.Sin(angle);
                 LVector.Z = (-1) * x * Math.Sin(angle) + z * Math.Cos(angle);
-                if (Math.Round(LVector.X) == 1)
-                    direction = -1;
-                else if (Math.Round(LVector.X) == -1)
+                if (direction == -1 && LVector.X < -0.3)
                     direction = 1;
+                else if (direction == 1 && LVector.X > 0.3)
+                    direction = -1;
+                LVector.Normalize();
                 RepaintTriangles();
             }
         }
@@ -157,7 +159,7 @@ namespace ScanlineRendering
         private void OnCanvasMouseMove(object sender, MouseEventArgs e)
         {
             var mouse = e.GetPosition(Board);
-            if (e.LeftButton == MouseButtonState.Pressed && movingPoint != null)
+            if (e.LeftButton == MouseButtonState.Pressed && movingPoint != null && !appliedColorSettings.MovingLight)
             {
                 movingPoint.Coord = new Point(mouse.X, mouse.Y);
                 RepaintTriangles(false);
@@ -166,7 +168,6 @@ namespace ScanlineRendering
 
         private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
-            var mouse = e.GetPosition(Board);
             movingPoint = null;
         }
 
@@ -177,6 +178,7 @@ namespace ScanlineRendering
 
         private void OnCanvasLoaded(object sender, RoutedEventArgs e)
         {
+            FillActualSize();
             LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
             LoadNBitmap(Properties.Resources.Carpet_01_NRM);
             RepaintTriangles(true);
@@ -186,7 +188,8 @@ namespace ScanlineRendering
 
         private void OnLModeClick(object sender, RoutedEventArgs e)
         {
-            LVector = new Vector3D(-1, 0, 0);
+            LVector = new Vector3D(-0.3, 0, 0.91);
+            LVector.Normalize();
         }
 
         private void OnNoLModeClick(object sender, RoutedEventArgs e)
@@ -204,7 +207,7 @@ namespace ScanlineRendering
                 if (filepath != null && filepath.Length > 0)
                 {
                     BitmapImage nBitmap = new BitmapImage(new Uri(filepath));
-                    double scaleX = Board.ActualWidth / nBitmap.PixelWidth;
+                    double scaleX =  Board.ActualWidth / nBitmap.PixelWidth;
                     double scaleY = Board.ActualHeight / nBitmap.PixelHeight;
                     var nBitmap2 = new TransformedBitmap(nBitmap, new ScaleTransform(scaleX, scaleY));
                     nBitmapStride = ((nBitmap2.PixelWidth * nBitmap2.Format.BitsPerPixel + 7) / 8);
@@ -236,7 +239,7 @@ namespace ScanlineRendering
                 {
                     BitmapImage colBitmap = new BitmapImage(new Uri(filepath));
                     double scaleX = Board.ActualWidth / colBitmap.PixelWidth;
-                    double scaleY = Board.ActualHeight / colBitmap.PixelHeight;
+                    double scaleY = Board.ActualHeight/ colBitmap.PixelHeight;
                     var colBitmap2 = new TransformedBitmap(colBitmap, new ScaleTransform(scaleX, scaleY));
                     colBitmapStride = ((colBitmap2.PixelWidth * colBitmap2.Format.BitsPerPixel + 7) / 8);
                     int colBitmapSize = colBitmapStride * colBitmap2.PixelHeight;
@@ -268,6 +271,7 @@ namespace ScanlineRendering
             appliedColorSettings = new FillColorSettings(FillColorSettings.KMSliders, FillColorSettings.NormalMap, 
                 FillColorSettings.InterpolMode, FillColorSettings.HybridMode, FillColorSettings.ColorFromTexture,
                 FillColorSettings.MovingLight, FillColorSettings.NoGrid);
+            FillActualSize();
             if (appliedColorSettings.NormalMap && NBitmap == null)
             {
                 MessageBox.Show("No normal map chosen. Setting default normal map.");
@@ -285,20 +289,27 @@ namespace ScanlineRendering
             trianglesInfoChanged = false;
         }
 
+        private void FillActualSize()
+        {
+            int n, m;
+            int.TryParse(trianglesInfo.N, out n);
+            int.TryParse(trianglesInfo.M, out m);
+            var widthCount = (int)Math.Round(Board.ActualWidth / n) ;
+            var heightCount = (int)Math.Round(Board.ActualHeight / m);
+            ActualWidth1 = n * widthCount;
+            ActualHeight1 = m * heightCount;
+        }
+
         private void RepaintTriangles(bool clear = false)
         {
             Board.Children.Clear();
             int n, m;
             int.TryParse(trianglesInfo.N, out n);
             int.TryParse(trianglesInfo.M, out m);
-            double width = Board.ActualWidth + Board.Margin.Left + Board.Margin.Right;
-            double height = Board.ActualHeight + Board.Margin.Top + Board.Margin.Bottom;
             var widthCount = (int)Math.Round(Board.ActualWidth / n);
             var heightCount = (int)Math.Round(Board.ActualHeight / m);
-            n1 = n;
-            m1 = m;
-            ncount = widthCount;
-            mcount = heightCount;
+            ActualWidth1 = n * widthCount;
+            ActualHeight1 = m * heightCount;
             if (clear)
             {
                 Vertex[,] vertices = new Vertex[heightCount, widthCount];
@@ -533,19 +544,19 @@ namespace ScanlineRendering
             if (appliedColorSettings.NormalMap)
             {
                 int index = x * 4 + y * nBitmapStride;
-                N = new Vector3D((NBitmap[index + 2] == 0 ? -1 : (double)NBitmap[index + 2] - 127) / 128,
-                    (NBitmap[index + 1] == 0 ? -1 : (double)NBitmap[index + 1] - 127) / 128,
+                N = new Vector3D(NBitmap[index + 2] == 0 ? -1 : ((double)NBitmap[index + 2] - 127) / 128,
+                    NBitmap[index + 1] == 0 ? -1 : ((double)NBitmap[index + 1] - 127) / 128,
                     (double)NBitmap[index] / 255);
+                N.Normalize();
             }
             V = new Vector3D(0, 0, 1);
             Color light = appliedColorInfo.LightColor;
             IL = new Vector3D(light.R / 255, light.G / 255, light.B / 255);
             IO = new Vector3D(c.R, c.G, c.B);
             Vector3D L = LVector;
-            R = 2 * N * Vector3D.DotProduct(N, L) - L;
-            var lol = Vector3D.AngleBetween(N, L);
-            double angle1 = Math.Cos(Angle(N, L));
-            double angle2 = Math.Pow(Math.Cos(Angle(V, R)), m);
+            R = 2 * N * Angle(N, L) - L;
+            double angle1 = Angle(N, L);
+            double angle2 = Math.Pow(Angle(V, R), m);
             return new Vector3D((kd * IL.X * IO.X * angle1) + (ks * IL.X * IO.X * angle2),
                 (kd * IL.Y * IO.Y * angle1) + (ks * IL.Y * IO.Y * angle2),
                 (kd * IL.Z * IO.Z * angle1) + (ks * IL.Z * IO.Z * angle2));
@@ -553,12 +564,14 @@ namespace ScanlineRendering
 
         private void OnConstNRadioButonClick(object sender, RoutedEventArgs e)
         {
-            NBitmap = null;
+            if (!appliedColorSettings.MovingLight)
+                NBitmap = null;
         }
 
         private void OnConstColRadioButtonClick(object sender, RoutedEventArgs e)
         {
-            ColBitmap = null;
+            if (!appliedColorSettings.MovingLight)
+                ColBitmap = null;
         }
 
         public static BitmapImage ToBitmapImage(System.Drawing.Bitmap bitmap)
