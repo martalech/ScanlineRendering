@@ -416,58 +416,73 @@ namespace ScanlineRendering
                         {
                             int index;
                             Vector3D vector = new Vector3D(0, 0, 0);
+                            index = (int)Math.Round(x) * 4 + y * colBitmapStride;
                             if (appliedColorSettings.ColorFromTexture)
-                            {
-                                index = (int)Math.Round(x) * 4 + y * colBitmapStride;
                                 c = Color.FromRgb(ColBitmap[index + 2], ColBitmap[index + 1], ColBitmap[index]);
-                                if (appliedColorSettings.InterpolMode)
+                            if (appliedColorSettings.InterpolMode)
+                            {
+                                int wx1 = (int)triangle.Edges[0].From.X;
+                                int wx2 = (int)triangle.Edges[1].From.X;
+                                int wx3 = (int)triangle.Edges[2].From.X;
+                                int wy1 = (int)triangle.Edges[0].From.Y;
+                                int wy2 = (int)triangle.Edges[1].From.Y;
+                                int wy3 = (int)triangle.Edges[2].From.Y;
+                                int index1 = wx1 * 4 + wy1 * colBitmapStride;
+                                Vector3D v1, v2, v3;
+                                if (appliedColorSettings.ColorFromTexture)
                                 {
-                                    int wx1 = (int)triangle.Edges[0].From.X;
-                                    int wx2 = (int)triangle.Edges[1].From.X;
-                                    int wx3 = (int)triangle.Edges[2].From.X;
-                                    int wy1 = (int)triangle.Edges[0].From.Y;
-                                    int wy2 = (int)triangle.Edges[1].From.Y;
-                                    int wy3 = (int)triangle.Edges[2].From.Y;
-                                    int index1 = wx1 * 4 + wy1 * colBitmapStride;
                                     Color c1 = Color.FromRgb(ColBitmap[index1 + 2], ColBitmap[index1 + 1], ColBitmap[index1]);
                                     int index2 = wx2 * 4 + wy2 * colBitmapStride;
                                     Color c2 = Color.FromRgb(ColBitmap[index2 + 2], ColBitmap[index2 + 1], ColBitmap[index2]);
                                     int index3 = wx3 * 4 + wy3 * colBitmapStride;
                                     Color c3 = Color.FromRgb(ColBitmap[index3 + 2], ColBitmap[index3 + 1], ColBitmap[index3]);
-                                    Vector3D v1 = I(kd, ks, m, c1, N, wx1, wy1);
-                                    Vector3D v2 = I(kd, ks, m, c2, N, wx2, wy2);
-                                    Vector3D v3 = I(kd, ks, m, c3, N, wx3, wy3);
-                                    double l1 = CalculateLength((int)x, y, wx1, wy1);
-                                    double l2 = CalculateLength((int)x, y, wx2, wy2);
-                                    double l3 = CalculateLength((int)x, y, wx3, wy3);
-                                    vector = (v1 * l1 + v2 * l2 + v3 * l3) / (l1 + l2 + l3);
-                                }
-                                else if (appliedColorSettings.HybridMode)
-                                {
-                                    int wx1 = (int)triangle.Edges[0].From.X;
-                                    int wx2 = (int)triangle.Edges[1].From.X;
-                                    int wx3 = (int)triangle.Edges[2].From.X;
-                                    int wy1 = (int)triangle.Edges[0].From.Y;
-                                    int wy2 = (int)triangle.Edges[1].From.Y;
-                                    int wy3 = (int)triangle.Edges[2].From.Y;
-                                    double gamma = (y * wx2 - y * wx1 - wx2 * wy1 + x * wy1 - x * wy2 + wx1 * wy2)
-                                        / (wy1 * wx3 - wy1 * wx2 + wx1 * wy2 - wx3 * wy2 + wy3 * wx2 - wy3 * wx1);
-                                    double beta = (x + gamma * wx1 - gamma * wx3 - wx1) / (wx2 - wx1);
-                                    double alfa = 1 - beta - gamma;
-
-                                    int index1 = wx1 * 4 + wy1 * colBitmapStride;
-                                    Color c1 = Color.FromRgb(ColBitmap[index1 + 2], ColBitmap[index1 + 1], ColBitmap[index1]);
-                                    int index2 = wx2 * 4 + wy2 * colBitmapStride;
-                                    Color c2 = Color.FromRgb(ColBitmap[index2 + 2], ColBitmap[index2 + 1], ColBitmap[index2]);
-                                    int index3 = wx3 * 4 + wy3 * colBitmapStride;
-                                    Color c3 = Color.FromRgb(ColBitmap[index3 + 2], ColBitmap[index3 + 1], ColBitmap[index3]);
-                                    Vector3D v1 = I(kd, ks, m, c1, N, wx1, wy1);
-                                    Vector3D v2 = I(kd, ks, m, c2, N, wx2, wy2);
-                                    Vector3D v3 = I(kd, ks, m, c3, N, wx3, wy3);
-                                    vector = alfa * v1 + beta * v2 + gamma * v3;
+                                    v1 = I(kd, ks, m, c1, N, wx1, wy1);
+                                    v2 = I(kd, ks, m, c2, N, wx2, wy2);
+                                    v3 = I(kd, ks, m, c3, N, wx3, wy3);
                                 }
                                 else
-                                    vector = I(kd, ks, m, c, N, (int)Math.Round(x), y);
+                                {
+                                    v1 = I(kd, ks, m, c, N, wx1, wy1);
+                                    v2 = I(kd, ks, m, c, N, wx2, wy2);
+                                    v3 = I(kd, ks, m, c, N, wx3, wy3);
+                                }
+                                double l1 = CalculateLength((int)x, y, wx1, wy1);
+                                double l2 = CalculateLength((int)x, y, wx2, wy2);
+                                double l3 = CalculateLength((int)x, y, wx3, wy3);
+                                vector = (v1 * l1 + v2 * l2 + v3 * l3) / (l1 + l2 + l3);
+                            }
+                            else if (appliedColorSettings.HybridMode)
+                            {
+                                int wx1 = (int)triangle.Edges[0].From.X;
+                                int wx2 = (int)triangle.Edges[1].From.X;
+                                int wx3 = (int)triangle.Edges[2].From.X;
+                                int wy1 = (int)triangle.Edges[0].From.Y;
+                                int wy2 = (int)triangle.Edges[1].From.Y;
+                                int wy3 = (int)triangle.Edges[2].From.Y;
+                                double gamma = (y * wx2 - y * wx1 - wx2 * wy1 + x * wy1 - x * wy2 + wx1 * wy2)
+                                    / (wy1 * wx3 - wy1 * wx2 + wx1 * wy2 - wx3 * wy2 + wy3 * wx2 - wy3 * wx1);
+                                double beta = (x + gamma * wx1 - gamma * wx3 - wx1) / (wx2 - wx1);
+                                double alfa = 1 - beta - gamma;
+                                Vector3D v1, v2, v3;
+                                if (appliedColorSettings.ColorFromTexture)
+                                {
+                                    int index1 = wx1 * 4 + wy1 * colBitmapStride;
+                                    Color c1 = Color.FromRgb(ColBitmap[index1 + 2], ColBitmap[index1 + 1], ColBitmap[index1]);
+                                    int index2 = wx2 * 4 + wy2 * colBitmapStride;
+                                    Color c2 = Color.FromRgb(ColBitmap[index2 + 2], ColBitmap[index2 + 1], ColBitmap[index2]);
+                                    int index3 = wx3 * 4 + wy3 * colBitmapStride;
+                                    Color c3 = Color.FromRgb(ColBitmap[index3 + 2], ColBitmap[index3 + 1], ColBitmap[index3]);
+                                    v1 = I(kd, ks, m, c1, N, wx1, wy1);
+                                    v2 = I(kd, ks, m, c2, N, wx2, wy2);
+                                    v3 = I(kd, ks, m, c3, N, wx3, wy3);
+                                }
+                                else
+                                {
+                                    v1 = I(kd, ks, m, c, N, wx1, wy1);
+                                    v2 = I(kd, ks, m, c, N, wx2, wy2);
+                                    v3 = I(kd, ks, m, c, N, wx3, wy3);
+                                }
+                                vector = alfa * v1 + beta * v2 + gamma * v3;
                             }
                             else
                                 vector = I(kd, ks, m, c, N, (int)Math.Round(x), y);
