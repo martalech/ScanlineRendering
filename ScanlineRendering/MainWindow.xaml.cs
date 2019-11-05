@@ -77,8 +77,6 @@ namespace ScanlineRendering
         private FillColorSettings fillColorSettings;
         private FillColorSettings appliedColorSettings;
 
-        private int ActualWidth1, ActualHeight1;
-
         private Vertex movingPoint = null;
         private List<Triangle> triangles = new List<Triangle>();
         private byte[] NBitmap, ColBitmap;
@@ -178,7 +176,6 @@ namespace ScanlineRendering
 
         private void OnCanvasLoaded(object sender, RoutedEventArgs e)
         {
-            FillActualSize();
             LoadColBitmap(Properties.Resources.bloom_blooming_bright_1131407);
             LoadNBitmap(Properties.Resources.Carpet_01_NRM);
             RepaintTriangles(true);
@@ -271,7 +268,6 @@ namespace ScanlineRendering
             appliedColorSettings = new FillColorSettings(FillColorSettings.KMSliders, FillColorSettings.NormalMap, 
                 FillColorSettings.InterpolMode, FillColorSettings.HybridMode, FillColorSettings.ColorFromTexture,
                 FillColorSettings.MovingLight, FillColorSettings.NoGrid);
-            FillActualSize();
             if (appliedColorSettings.NormalMap && NBitmap == null)
             {
                 MessageBox.Show("No normal map chosen. Setting default normal map.");
@@ -289,17 +285,6 @@ namespace ScanlineRendering
             trianglesInfoChanged = false;
         }
 
-        private void FillActualSize()
-        {
-            int n, m;
-            int.TryParse(trianglesInfo.N, out n);
-            int.TryParse(trianglesInfo.M, out m);
-            var widthCount = (int)Math.Round(Board.ActualWidth / n) ;
-            var heightCount = (int)Math.Round(Board.ActualHeight / m);
-            ActualWidth1 = n * widthCount;
-            ActualHeight1 = m * heightCount;
-        }
-
         private void RepaintTriangles(bool clear = false)
         {
             Board.Children.Clear();
@@ -308,8 +293,6 @@ namespace ScanlineRendering
             int.TryParse(trianglesInfo.M, out m);
             var widthCount = (int)Math.Round(Board.ActualWidth / n);
             var heightCount = (int)Math.Round(Board.ActualHeight / m);
-            ActualWidth1 = n * widthCount;
-            ActualHeight1 = m * heightCount;
             if (clear)
             {
                 Vertex[,] vertices = new Vertex[heightCount, widthCount];
