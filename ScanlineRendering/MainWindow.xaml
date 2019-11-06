@@ -32,6 +32,7 @@
                 <RowDefinition Height="0.4*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.4*"/>
+                <RowDefinition Height="0.4*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.4*"/>
                 <RowDefinition Height="0.2*"/>
@@ -163,33 +164,39 @@
                 <TextBlock FontSize="10" Margin="10, 0, 0, 0" VerticalAlignment="Center">Choose a file:</TextBlock>
                 <Button Grid.Column="1" Click="OnLoadNButtonClick">Load file</Button>
             </Grid>
+            <RadioButton Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" GroupName="N"  IsChecked="{Binding Path=FillColorSettings.Bubble,
+                ElementName=ScanlineRendering, Converter={StaticResource BoolConverter}, UpdateSourceTrigger=PropertyChanged}">
+                <RadioButton.Content>
+                    <TextBlock FontSize="11" Text="bubble" HorizontalAlignment="Center"/>
+                </RadioButton.Content>
+            </RadioButton>
 
-            <TextBlock Grid.Row="9" Text="Fill color: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="9" Grid.Column="1" VerticalAlignment="Center" GroupName="Color" IsChecked="True">
+            <TextBlock Grid.Row="10" Text="Fill color: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" GroupName="Color" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="accurate" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="9" Grid.Column="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.HybridMode,
+            <RadioButton Grid.Row="10" Grid.Column="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.HybridMode,
                 ElementName=ScanlineRendering, Converter={StaticResource BoolConverter}, UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="hybrid" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.InterpolMode,
+            <RadioButton Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" GroupName="Color" IsChecked="{Binding Path=FillColorSettings.InterpolMode,
                 ElementName=ScanlineRendering, Converter={StaticResource BoolConverter}, UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="interpolation" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
 
-            <TextBlock Grid.Row="11" Text="L: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="11" Grid.Column="1" VerticalAlignment="Center" GroupName="L" IsChecked="True" Click="OnNoLModeClick">
+            <TextBlock Grid.Row="12" Text="L: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="12" Grid.Column="1" VerticalAlignment="Center" GroupName="L" IsChecked="True" Click="OnNoLModeClick">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="const." HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="11" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
+            <RadioButton Grid.Row="12" Grid.Column="2" VerticalAlignment="Center" GroupName="L" Click="OnLModeClick"
                 IsChecked="{Binding Path=FillColorSettings.MovingLight, ElementName=ScanlineRendering, Converter={StaticResource BoolConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
@@ -197,13 +204,13 @@
                 </RadioButton.Content>
             </RadioButton>
 
-            <TextBlock Grid.Row="12" Text="Show grid: " VerticalAlignment="Center"/>
-            <RadioButton Grid.Row="12" Grid.Column="1" VerticalAlignment="Center" GroupName="Grid" IsChecked="True">
+            <TextBlock Grid.Row="13" Text="Show grid: " VerticalAlignment="Center"/>
+            <RadioButton Grid.Row="13" Grid.Column="1" VerticalAlignment="Center" GroupName="Grid" IsChecked="True">
                 <RadioButton.Content>
                     <TextBlock FontSize="11" Text="yes" HorizontalAlignment="Center"/>
                 </RadioButton.Content>
             </RadioButton>
-            <RadioButton Grid.Row="12" Grid.Column="2" VerticalAlignment="Center" GroupName="Grid"
+            <RadioButton Grid.Row="13" Grid.Column="2" VerticalAlignment="Center" GroupName="Grid"
                 IsChecked="{Binding Path=FillColorSettings.NoGrid, ElementName=ScanlineRendering, Converter={StaticResource BoolConverter},
                 UpdateSourceTrigger=PropertyChanged}">
                 <RadioButton.Content>
@@ -211,7 +218,7 @@
                 </RadioButton.Content>
             </RadioButton>
 
-            <Button Grid.Row="13" Grid.ColumnSpan="3" Click="OnApplyChangesClick" Margin="0, 15, 0, 0">Apply changes</Button>
+            <Button Grid.Row="14" Grid.ColumnSpan="3" Click="OnApplyChangesClick" Margin="0, 15, 0, 0">Apply changes</Button>
         </Grid>
         <Canvas Name="Board" MouseLeftButtonDown="OnCanvasMouseDown"
                 Loaded="OnCanvasLoaded" MouseMove="OnCanvasMouseMove"
