@@ -2,7 +2,7 @@
 ScanlineRendering is a program written in WPF technology implementing Scanline fill algorithm on a grid of triangles.
 It allows user to apply a texture and a normal map, change light position/color and triangle's parameters for realistic effects.
 
-![Screenshot1](ScanlineRednering.png)
+![Screenshot1](ScanlineRendering.png)
 
 ## Options
 1. "N: " - width of a single triangle
